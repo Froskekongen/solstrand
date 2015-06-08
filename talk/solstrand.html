@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Fra råtekst til statistiske modeller</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="white-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/white.css" id="theme">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+	<script src="lib/js/html5shiv.js"></script>
+	<![endif]-->
+  </head>
+
+  <body>
+    <div style="background: url(img/logo_intelcom.png);
+                background-size: contain;
+                background-repeat: no-repeat;
+                position: absolute;
+                top:20px;
+                right:20px;
+                width:150px;
+                height:30px"></div>
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+	<section>
+          <h2>Statistiske modeller og råtekst</h2>
+          <h3 class="fragment">eller: utforsking av tekstdata og kovariat-engineering </h3><br>
+          <h4>Dr. Erlend Aune</h4>
+          Intelligent Communication AS
+	</section>
+        <section>
+          <h3>Oversikt</h3>
+          <ul>
+            <li>Hvorfor se på råtekst?
+            <li>Utforsking av tekstdata
+            <li>Representasjon av tekst - Bag of Words/n-grams
+            <li>Eksempelmodeller
+            <li>Clustering
+            <li>Dimensjonsreduksjon
+            <li>...
+
+          </ul>
+        </section>
+        <section>
+          <h3>Hvorfor råtekst!?</h3>
+          Mye av dataene vi kan få tak i er representert ved tekst
+          <ul>
+            <li class="fragment">Logger på datasystemer
+            <li class="fragment">Strømmer av fritekst: sosiale medier og chat
+            <li class="fragment">Artikler
+              $\int_0^\infty$
+          </ul>
+        </section>
+
+
+
+      <section>
+        <h2>Loggdata...?</h2>
+        <small class="fragment" style="text-align:left;font-size:0.4em"><code>
+Jun  7 20:27:15 erlenda-XPS-13-9343 kernel: [  760.904536] docker0: port 2(veth34ef94d) entered forwarding state <br>
+Jun  7 20:29:39 erlenda-XPS-13-9343 systemd[1]: Starting Cleanup of Temporary Directories... <br>
+Jun  7 20:29:39 erlenda-XPS-13-9343 systemd-tmpfiles[3060]: [/usr/lib/tmpfiles.d/var.conf:14] Duplicate line for path "/var/log", ignoring. <br>
+Jun  7 20:29:39 erlenda-XPS-13-9343 systemd[1]: Started Cleanup of Temporary Directories. <br>
+Jun  7 20:34:05 erlenda-XPS-13-9343 wpa_supplicant[820]: wlan0: WPA: Group rekeying completed with 20:aa:4b:1e:80:02 [GTK=TKIP] <br>
+Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: service name='org.freedesktop.hostname1' unit='dbus-org.freedesktop.hostname1.service'
+        </code></small>
+      <br>
+      <img src="img/wtf.png" class="fragment"
+           width=40%/><br>
+      </section>
+        <section>
+          <h3>Utforsking av tekstdata</h3>
+          Så hva hvis man har en mengde teksdata som man ikke vet hvordan man skal bruke?
+          <table>
+            <tr>
+              <td>
+              <span class="fragment">
+                <img src="img/idea.png"
+                     width=150%/><br>
+                <small>Source: www.chest-project.eu/</small>
+              </span>
+          <td style="vertical-align: left">
+          <ul>
+            <li class="fragment">Dump dataene inn i et søkerammeverk! (f.eks. <a href="https://www.elastic.co/" target="_blank">Elasticsearch</a> eller <a href="http://lucene.apache.org/solr/" target="_blank">Solr</a>)
+            <li class="fragment">Dette gjør det enkelt å utforske dataene via dashboards. <a href="http://localhost:32771" target="_blank">Demo 1: syslog</a>
+          </ul>
+        </table>
+        </section>
+
+
+        <section>
+          <h3>Hvorfor råtekst!?</h3>
+          Mye av dataene vi kan få tak i er representert ved tekst
+          <ul>
+            <li class="math">$f(x)=\int_{\mathbb{R}} x^2dx$
+            <li class="fragment">Strømmer av fritekst: sosiale medier og chat
+            <li class="fragment">Artikler
+          </ul>
+        </section>
+
+
+        <section>
+          <h2>The data revolution</h2>
+          <table>
+            <tr>
+              <td>
+                <img src="img/Big_data_cartoon_t_gregorius.jpg"
+                     width=70%/><br>
+                <small>Source: T. Gregorius / Wikimedia</small>
+              <td style="vertical-align: middle">
+                <ul>
+                  <li>Ubiquity of data
+                  <li>Advanced modeling
+                    <ul>
+                      <li>Machine learning
+                        <li>Deep analytics
+                    </ul>
+                  <li>Rapid deployment
+                    <ul>
+                      <li> e.g. Netezza & SPSS
+                    </ul>
+                </ul>
+          </table>
+        </section>
+        <section>
+          <section>
+            <h2>Data aquisition</h2>
+            <table>
+              <tr>
+                <td><img src="img/phone.png" width=60%/>
+                <td style="vertical-align: middle">
+                  <div>
+                    <b>Huge numbers</b> of devices collect data at <b>high
+                      frequency</b> with high <b>quality</b> and <b>diversity</b>.
+                  </div>
+                  <br>
+                  <div class="fragment">
+                    <b>Opportunites</b> for highly accurate
+                    <i>predicitons</i> and <i>insights</i>.
+                  </div>
+                  <br>
+                  <div class="fragment">
+                    <b>Challenges</b> for data <i>management</i>
+                    and <i>analytics</i>.
+                  </div>
+              </tr>
+            </table>
+          </section>
+          <section>
+            <h2>Data integration - The big picture</h2>
+            <table>
+              <tr>
+                <td><img src="img/Arduino_Uno_-_R3.jpg"/>
+                  <br><small>SparkFun Electronics LTD</small>
+                <td><img src="img/coast.jpg" width=100%/>
+                  <br><small>Wikimedia/Google Earth</small>
+              </tr>
+            </table>
+          </section>
+          <section>
+            <h2>Examples</h2>
+            <table>
+              <tr>
+                <td>
+                  <img src="img/fishfarm.jpg"/><br>
+                  <small>"Aquakultur-Vestmanna" by Erik Christensen
+                    via Wikimedia</small>
+                <td style="vertical-align:top">
+                  <div>
+                    <a href="http://aquaculturenorthamerica.com/profiles/fish-farming-in-the-cloud/">aquaculturenorthamerica.com</a><br>
+                    Jan. 2015<br>
+                    <i>"Fish farming in the cloud"</i>
+                  </div><br>
+                  <div>
+                  <a href="http://www.fis.com/fis/worldnews/worldnews.asp?l=e&country=0&special=&monthyear=&day=&id=49800&ndb=1&df=0">fis.com</a><br>
+                  Feb. 2012<br>
+                  <i>"Scientists use Google Earth to monitor fish
+                    farming data"</i>
+                  </div>
+            </table>
+          </section>
+          <section>
+            <h2>Examples</h2>
+            <table>
+              <tr>
+                <td>
+                  <img src="img/social-media.jpg"/><br>
+                  <small>Yoel Ben-Avraham / Flickr</small>
+                <td style="vertical-align:middle">
+                  <div>
+                    <a href="http://www.fastcoexist.com/1681873/twitter-can-predict-the-stock-market-if-youre-reading-the-right-tweets">fastcompany.com</a><br>
+                    Apr. 2013<br>
+                    <i>Twitter Can Predict The Stock Market, If You're Reading The Right Tweets</i>
+                  </div>
+            </table>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Analytics</h2>
+            <table>
+              <tr>
+                <td>
+                  <img src="img/hard_disk.jpg" width=100%/><br>
+                  <small>Darkone / Wikimedia Commons</small>
+                <td style="vertical-align:middle">
+                  <div>
+                    Collected <b>data</b> has no <i>value</i> without
+                    good <b>models</b> to gain <i>insights</i> and make
+                    <i>predictions</i>.
+                  </div><br>
+                  <div class="fragment">
+                    Powerful <b>machine learning</b> techniques are
+                    avaliable to make accurate <b>predictions</b>
+                    using <i>huge</i> data sets.
+                  </div><br>
+                  <div class="fragment">
+                    <i>Example:</i> The new Boeing 787 will generate
+                    <b>500GB</b> of data <b>per flight</b>.
+                  </div>
+            </table>
+          </section>
+          <section>
+            <h2>Examples</h2>
+            <table>
+              <tr>
+                <td>
+                  <img src="img/harvester.jpg" width=90%/><br>
+                  <small>John Deere</small>
+                <td style="vertical-align:top">
+                  <div>
+                    <a href="https://datafloq.com/read/john-deere-revolutionizing-farming-big-data/511">datafloq.com</a><br>
+                    Feb. 2015<br>
+                    <i>"John Deere Is Revolutionizing Farming With Big Data"</i>
+                  </div><br>
+                  <div>
+                    <a href="http://www.techrepublic.com/article/how-big-data-is-going-to-help-feed-9-billion-people-by-2050/">techrepublic.com</a><br>
+                    Feb. 2015<br>
+                    <i>"How big data is going to help feed nine billion people by 2050"</i>
+                  </div>
+            </table>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Putting data to work</h2>
+            <table>
+              <tr>
+                <td style="border-bottom:0px">
+                  <img src="img/Netezza.png" width=70%/>
+                <td  style="border-bottom:0px">
+                  <img src="img/spark-logo.png" width=70%/>
+              </tr>
+              <tr>
+                <td>
+                  <img src="img/hadoop.png" width=70%/>
+                <td>
+                  <img src="img/SPSS.png" width=70%/>
+            </table>
+          </section>
+          <section>
+            <h2>Real-time monitoring</h2>
+            <table>
+              <tr>
+                <td>
+                  <img src="img/cow_vs_drone.jpg" width=90%/><br>
+                  <small>"Drone vs Cow" -- Lima Pix/Flickr</small>
+                <td style="vertical-align:top">
+                  <div style="width:400px">
+                    <a href="http://www.technologyreview.com/featuredstory/526491/agricultural-drones/">MIT technology review</a><br><br>
+                    10 Breakthrough Technologies 2014<br><br>
+                    <b>Agricultural Drones</b>
+                    <i>
+                      Relatively cheap drones with advanced sensors
+                      and imaging capabilities are giving farmers new
+                      ways to increase yields and reduce crop damage.
+                    </i>
+                  </div>
+            </table>
+          </section>
+          <section>
+            <h2>Deep analytics</h2>
+            <table>
+              <tr>
+                <td>
+                  <img src="img/irrigation.png" width=90%/><br>
+                  <small>John Holm/Flickr</small>
+                <td style="vertical-align:top">
+                  <a href="http://www.research.ibm.com/articles/precision_agriculture.shtml">IBM Research</a><br>
+                  <b>Precision agriculture</b><br>
+                  <i>Using predictive weather analytics to feed
+                    future generations </i>
+            </table>
+          </section>
+        </section>
+        <section>
+          <h1>Thank You!</h1>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+      // Optional reveal.js plugins
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true },
+      { src: 'plugin/math/math.js', async: true },
+      { src: 'plugin/notes/notes.js', async: true }
+      // { src: 'plugin/math/math.js', async: true }
+      ]
+      });
+
+    </script>
+
+  </body>
+</html>
