@@ -8,4 +8,4 @@ ADD sl.conf /logdata/sl.conf
 RUN logstash agent -f /logdata/vp.conf < /logdata/vpdata/iconproducts.txt
 RUN logstash agent -f /logdata/sl.conf < /logdata/syslog/syslog.txt
 
-CMD ["bash"]
+CMD [""]
