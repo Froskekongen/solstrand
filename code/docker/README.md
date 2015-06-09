@@ -11,3 +11,6 @@ Instructions
 
 4. Build docker logstash image
  - sudo docker build -t froskekongen/logstasher .
+
+5. Run logstash image
+ - sudo docker run -it --link docker_elasticsearch_1:elasticsearch --rm froskekongen/logstasher
