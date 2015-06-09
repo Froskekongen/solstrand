@@ -1,0 +1,10 @@
+kibana:
+  image: marvambass/kibana
+  links:
+   - elasticsearch
+  ports:
+   - "35601:5601"
+elasticsearch:
+  image: elasticsearch
+  ports:
+    - "39200:9200"
