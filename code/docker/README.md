@@ -3,8 +3,8 @@ Instructions
 1. Get docker images using getImages.sh
  - getImages.sh needs to be run with sudo
 
-2. Start elasticsearch
- - docker run -d -p 9200 elasticsearch
+2. Start elasticsearch and kibana
+ - docker-compose up -d
 
 3. Get some log data
  - run getLocalSyslog.sh and getVPdata.sh
