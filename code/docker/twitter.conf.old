@@ -1,0 +1,25 @@
+input {
+    stdin {}
+}
+
+filter {
+    csv {
+        columns => ["created_at","author_id","reqtweet_count","id","text","language"]
+        separator => "¬"
+        quote_char => "\""
+        }
+}
+
+}
+output {
+    elasticsearch {
+        host => "elasticsearch"
+        protocol => http
+        index => twitter
+        document_type => tweet
+        template => "/logdata/mappingTweets.json"
+
+        template_name => "tweets_tpl"
+        template_overwrite => true
+    }
+}
