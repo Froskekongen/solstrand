@@ -47,6 +47,8 @@
           <h4>Dr. Erlend Aune</h4>
           Intelligent Communication AS
 	</section>
+
+
         <section>
           <h3>Oversikt</h3>
           <ul>
@@ -60,18 +62,89 @@
 
           </ul>
         </section>
+
+
+
         <section>
           <h3>Hvorfor råtekst!?</h3>
           Mye av dataene vi kan få tak i er representert ved tekst
           <ul>
-            <li class="fragment">Logger på datasystemer
+            <li class="fragment">Logger fra datasystemer
             <li class="fragment">Strømmer av fritekst: sosiale medier og chat
             <li class="fragment">Artikler
-              $\int_0^\infty$
+            <li class="fragment">E-post
+              <li class="fragment">Pluss mange flere...
           </ul>
         </section>
 
 
+    <section>
+        <h2>Loggdata...?</h2>
+        <small class="fragment" style="text-align:left;font-size:0.4em"><code>
+Jun  7 20:27:15 erlenda-XPS-13-9343 kernel: [  760.904536] docker0: port 2(veth34ef94d) entered forwarding state <br>
+Jun  7 20:29:39 erlenda-XPS-13-9343 systemd[1]: Starting Cleanup of Temporary Directories... <br>
+Jun  7 20:29:39 erlenda-XPS-13-9343 systemd-tmpfiles[3060]: [/usr/lib/tmpfiles.d/var.conf:14] Duplicate line for path "/var/log", ignoring. <br>
+Jun  7 20:29:39 erlenda-XPS-13-9343 systemd[1]: Started Cleanup of Temporary Directories. <br>
+Jun  7 20:34:05 erlenda-XPS-13-9343 wpa_supplicant[820]: wlan0: WPA: Group rekeying completed with 20:aa:4b:1e:80:02 [GTK=TKIP] <br>
+Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: service name='org.freedesktop.hostname1' unit='dbus-org.freedesktop.hostname1.service'
+        </code></small>
+      <br>
+    </section>
+
+        <section>
+          <h2>Bag of words/n-grams (BoW)</h2>
+          Hvert ord/n-gram får en unik kolonne. <br>
+          Eksempel:
+          <small>
+            Doknr: 5, Timestamp: Jun  7 20:37:51, Message: "Started Cleanup cleanup of Temporary Directories."
+          </small><br>
+          <ul style="font-size:0.5em">
+            <li class="fragment"> [(started $\to 1$ ), (cleanup $\to 2$), ...]
+            <li class="fragment"> Representasjon: [(5,1,1), (5,2,2), ...]
+            <li class="fragment"> Altså: <table>
+      <tr>
+        <td> </td>
+        <td>started</td>
+        <td>cleanup</td>
+        <td>of</td>
+        <td> ... </td>
+      </tr>
+      <tr> <td>...</td> <td>...</td><td>...</td><td>...</td> <td>...</td> <tr>
+      <tr>
+        <td>5</td>
+        <td>1</td>
+        <td>2</td>
+        <td>1</td>
+        <td>...</td>
+      <tr> </li>
+    </table> <br>
+          </ul> <br>
+          <span class="fragment">Eller for 2-gram representasjon</span>
+          <table class="fragment" style="font-size:0.5em">
+      <tr>
+      <td> </td>
+      <td>started cleanup</td>
+      <td>cleanup cleanup</td>
+      <td>cleanup of</td>
+      <td> ... </td>
+      </tr>
+      <tr> <td>...</td> <td>...</td><td>...</td><td>...</td> <td>...</td> <tr>
+      <tr>
+      <td>5</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>...</td>
+      <tr> </li>
+      </table> <br>
+      <span class="fragment">Konsekvens: matrixer med dimensjon $m\times p$ med STOR $p$</span>
+
+
+
+
+
+
+        </section>
 
       <section>
         <h2>Loggdata...?</h2>
@@ -101,24 +174,68 @@ Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: 
           <td style="vertical-align: left">
           <ul>
             <li class="fragment">Dump dataene inn i et søkerammeverk! (f.eks. <a href="https://www.elastic.co/" target="_blank">Elasticsearch</a> eller <a href="http://lucene.apache.org/solr/" target="_blank">Solr</a>)
-            <li class="fragment">Dette gjør det enkelt å utforske dataene via dashboards. <a href="http://localhost:32771" target="_blank">Demo 1: syslog</a>
+            <li class="fragment">Dette gjør det enkelt å utforske dataene via dashboards. <a href="http://localhost:5601" target="_blank">Demo 1: syslog</a>
           </ul>
         </table>
         </section>
 
 
+
+
+
         <section>
-          <h3>Hvorfor råtekst!?</h3>
-          Mye av dataene vi kan få tak i er representert ved tekst
-          <ul>
-            <li class="fragment">Logger fra datasystemer
-            <li class="fragment">Strømmer av fritekst: sosiale medier og chat
-            <li class="fragment">Artikler
-            <li class="fragment">E-post
-              <li class="fragment">Pluss mange flere...
+          <section>
+          <h4>Bruk av data - applikasjons-/systemlogger</h4>
+          <table style="font-size:0.4em">
+            <tr>
+              <td> Timestamp
+              <td> Last error
+              <td> Message
+              <td> Type
+            </tr>
+            <tr>
+              <td> June 12th 2015, 22:46:15.000 <td> 30 <td> [system] Successfully activated service 'org.debian.apt' <td> Notice
+            </tr>
+            <tr>
+              <td> June 12th 2015, 22:47:00.000 <td> 75 <td> (polkit-gnome-authentication-agent-1:1484): GLib-GObject-WARNING **: The property GtkSettings:gtk-button-images is deprecated and shouldn't be used anymore. It will be removed in a future version. <td> Warning
+            </tr>
+            <tr>
+              <td> ...<td> ... <td> ... <td> ...
+            </tr>
+            <tr>
+              <td> June 12th 2015, 22:57:00.000 <td> 675 <td> (polkit-gnome-authentication-agent-1:1484): GLib-GObject-WARNING **: The property GtkSettings:gtk-button-images is deprecated and shouldn't be used anymore. It will be removed in a future version. <td> Error
+            </td>
+          </table> <br>
+          <span class="fragment" style="font-size:0.8em">Mulige modeller: </span> <br>
+          <ul style="font-size:0.8em">
+            <li class="fragment"> Standard levetidsmodell
+            <li class="fragment"> Risk-modell, der en gitt tid før feil anses som risikofyll $\to$ Klassifiseringsmodell
           </ul>
         </section>
 
+        <section>
+          <h4>Bruk av data - applikasjons-/systemlogger</h4>
+          Utfordringer <br>
+          <ul style="font-size:0.8em">
+            <li> Mange kovariater ${\bf A} \in \mathbb{R}^{m\times p}$ med $p \sim 10\,000 - 100\,000$ eller mer
+              <ul class="fragment">
+                <li> Dimensjonsreduksjon:
+                  <li> Clustering
+                  <li> Matrisefaktorisering
+              </ul>
+            <li> Hvor lenge er en kovariat "aktiv"? En logglinje har ikke en naturlig varighet.
+              <ul class="fragment">
+                <li> Kryssvalidere på hvor lenge ulike logglinjer bør "vare"
+                  <li> Eksponensiell vekting: $ {\bf p} (t) = e^{-k t} {\bf f}$, for ${\bf f} \in \mathbb{R}^{1\times p}$
+              </ul>
+            </ul>
+        </section>
+
+
+          <section>
+            <h3>Bruk av data - omtaler
+          </section>
+        </section>
 
         <section>
           <h2>The data revolution</h2>
