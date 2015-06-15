@@ -56,8 +56,11 @@
             <li>Utforsking av tekstdata
             <li>Representasjon av tekst - Bag of Words/n-grams
             <li>Eksempelmodeller
-            <li>Clustering
             <li>Dimensjonsreduksjon
+              <ul>
+                 <li> Clustering
+                 <li> Matrisefaktorisering
+              </ul>
             <li>...
 
           </ul>
@@ -210,6 +213,8 @@ Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: 
           <ul style="font-size:0.8em">
             <li class="fragment"> Standard levetidsmodell
             <li class="fragment"> Risk-modell, der en gitt tid før feil anses som risikofyll $\to$ Klassifiseringsmodell
+            <li class="fragment"> Poisson-regresjon der man estimerer kovariaters effekt på feilintensitet, samt periodiske effekter
+
           </ul>
         </section>
 
@@ -220,8 +225,10 @@ Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: 
             <li> Mange kovariater ${\bf A} \in \mathbb{R}^{m\times p}$ med $p \sim 10\,000 - 100\,000$ eller mer
               <ul class="fragment">
                 <li> Dimensjonsreduksjon:
+                  <ul>
                   <li> Clustering
                   <li> Matrisefaktorisering
+                  </ul>
               </ul>
             <li> Hvor lenge er en kovariat "aktiv"? En logglinje har ikke en naturlig varighet.
               <ul class="fragment">
@@ -233,9 +240,68 @@ Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: 
 
 
           <section>
-            <h3>Bruk av data - omtaler
+            <h4><a href="http://localhost:5601/?#/discover/?_g=()&_a=(columns:!(Produsent,Varenavn,Argang,Varetype,Smak,Sodme,Bitterhet),filters:!(),index:vinmonopolet,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'Varetype:%C3%98l')),sort:!(Bitterhet,desc))" target="_blank">Bruk av data - direkte kobling til målvariable </a></h4>
+              Hvis kovariat
+              Utfordringer:
+              <ul style="font-size:0.8em">
+                <li> Fremdeles ${\bf A} \in \mathbb{R}^{m \times p}$ med stor $p$
+                <li> Enklere modeller - f.eks. GLM uten tids-/romdimensjon (vanlig med logit-link)
+              </ul>
+
+
           </section>
         </section>
+
+      <section>
+        <section>
+          <h4>Dimensjonsreduksjon</h4>
+          Hva med clustering?
+            <ul style="font-size:0.8em">
+              <li class="fragment"> Kovariater bestemt av antall clustre
+                <ul class="fragment">
+                  <li> Definer ny kovariamatrise ${\bf K}$
+                </ul>
+                <ul class="fragment">
+                  <li> Hvis beskjed $b_j \in {\bf A}^{1,p}$ tilhører cluster $C_i$, definer ${\bf K}_{j,i}=1$
+                </ul>
+              <li class="fragment">Også mulig å clustre flere ganger, slik at $b_j$ tilhører flere clustre
+                <ul>
+                  <li class="fragment"> Altså: $b_j \in C_{i}$ for alle $i \in \mathcal{I} \to {\bf K}_{j,i}=1$ for alle $i \in \mathcal{I}$
+                </ul>
+              <li class="fragment"> Mål for clustering:
+              <ul class="fragment">
+                <li> Lage gode kovariater for statistisk modell
+                <li> <b>IKKE</b> nødvendigvis en god tekstclustering
+                <li> Selv om dette gjerne kan sammenfalle
+              </ul>
+            </ul>
+
+
+        </section>
+
+        <section>
+          <h4>Preprosessering</h4>
+          <span style="text-align:right;font-size:0.8em">
+          Man jobber vanligvis ikke direkte med ${\bf A}$ <br>
+          Vanlig preprosessering for matrise Bag of Words/n-gram-modeller <br>
+         </span>
+
+            <ul style="font-size:0.8em">
+              <li class="fragment"> Normalisering: ${\bf A A}^T = {\bf I}$
+              <li class="fragment"> Min- og max-thresholding:
+                <ul class="fragment">
+                  <li> $\sum_{i=1}^m {\bf A}_{i,j}\geq k$ for alle $j$
+                  <li> $\sum_{i=1}^m {\bf A}_{i,j}\leq p \cdot m$ for alle $j$. $p \sim 0.5$
+                </ul>
+              <li class="fragment"> Hvis antall tekster, $m$, er stor, er ofte 2-gram mer ekspressiv en 1-gram. 
+            </ul>
+
+
+        </section>
+
+      </section>
+
+
 
         <section>
           <h2>The data revolution</h2>
