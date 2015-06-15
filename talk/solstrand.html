@@ -293,8 +293,25 @@ Jun  7 20:37:51 erlenda-XPS-13-9343 dbus[766]: [system] Activating via systemd: 
                   <li> $\sum_{i=1}^m {\bf A}_{i,j}\geq k$ for alle $j$
                   <li> $\sum_{i=1}^m {\bf A}_{i,j}\leq p \cdot m$ for alle $j$. $p \sim 0.5$
                 </ul>
-              <li class="fragment"> Hvis antall tekster, $m$, er stor, er ofte 2-gram mer ekspressiv en 1-gram. 
+              <li class="fragment"> Hvis antall tekster, $m$, er stor, er ofte 2-gram mer ekspressiv en 1-gram.
             </ul>
+
+
+        </section>
+
+
+        <section>
+          <h4>Clustering</h4>
+          <ul>
+            <li class="fragment"> K-means og rekursiv k-means.
+              <ul class="fragment">
+                <li> Enkel å implementere og tolke
+                <li> Streaming-/minibatch-varianter trivielt å implementere
+                <li> Standard problemstillinger rundt antall clustre osv...
+                <li> <a target="_blank" href="http://localhost:5601/#/discover?_a=(columns:!(cluster,Type,Land,Beskrivelse),index:vpclusters,interval:auto,query:(query_string:(analyze_wildcard:!t,query:'*')),sort:!(cluster,asc))&_g=()">VP-eksempel</a>
+                <li> <a href="http://localhost:5601/#/visualize/create?type=pie&indexPattern=vpclusters&_g=()&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'*')),vis:(aggs:!((id:'1',params:(),schema:metric,type:count),(id:'2',params:(extended_bounds:(),field:cluster,interval:1),schema:segment,type:histogram),(id:'3',params:(field:Beskrivelse,size:3),schema:segment,type:significant_terms)),listeners:(),params:(addLegend:!t,addTooltip:!t,isDonut:!f,shareYAxis:!t),type:pie))" target="_blank">VP-eksempel, pie...</a>
+              </ul>
+          </ul>
 
 
         </section>
